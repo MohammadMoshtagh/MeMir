@@ -33,21 +33,21 @@ namespace SearchTest
         public void Should_Read_When_Path_Is_Directory()
         {
             IReader reader = Substitute.For<IReader>();
-            reader.Read("TestDataBase/1").Returns(new Dictionary<string, string>()
+            reader.Read("TestDataBase\\1").Returns(new Dictionary<string, string>()
             {
                 {
                     "1", $"Hello Dear,{_ls}" +
                          $"I am Mohammad.{_ls}"
                 }
             });
-            reader.Read("TestDataBase/3").Returns(new Dictionary<string, string>()
+            reader.Read("TestDataBase\\3").Returns(new Dictionary<string, string>()
             {
                 {
                     "3", $"man sag mikham{_ls}" +
                          $"sag khoshgel -  !!! mio !!!{_ls}"
                 }
             });
-            reader.Read("TestDataBase/4").Returns(new Dictionary<string, string>()
+            reader.Read("TestDataBase\\4").Returns(new Dictionary<string, string>()
             {
                 {
                     "4", "Mir rafte dubai vase nakhle talaii !!"
