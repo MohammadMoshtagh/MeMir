@@ -6,4 +6,6 @@
 
 ![Your Repository's Stats](https://github-readme-stats.vercel.app/api?username=MohammadMoshtagh&show_icons=true)
 
+![Your Repository's Stats](https://github-readme-stats.vercel.app/api?username=Mir_Abedi&show_icons=true)
+
 ![This is mio](panda.png)
