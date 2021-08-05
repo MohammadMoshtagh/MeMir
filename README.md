@@ -8,4 +8,8 @@
 
 ![Your Repository's Stats](https://github-readme-stats.vercel.app/api?username=Mir-Abedi&show_icons=true)
 
+![Your Repository's Stats](https://github-readme-stats.vercel.app/api/top-langs/?username=MohammadMoshtagh&theme=blue-green)
+
+![Your Repository's Stats](https://github-readme-stats.vercel.app/api/top-langs/?username=Mir-Abedi&theme=blue-green)
+
 ![This is mio](panda.png)
