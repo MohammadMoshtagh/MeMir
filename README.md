@@ -2,9 +2,7 @@
 
 ## This is a private repository bemola
 
-[![Agha damemoon garm](https://github.com/MohammadMoshtagh/MeMir/actions/workflows/dotnet-package.yml/badge.svg?branch=main&event=push)](https://github.com/MohammadMoshtagh/MeMir/actions/workflows/dotnet-package.yml)
-
-[![codecov](https://codecov.io/gh/MohammadMoshtagh/MeMir/branch/main/graph/badge.svg?token=1LSS4ANS9C)](https://codecov.io/gh/MohammadMoshtagh/MeMir)
+[![Agha damemoon garm](https://github.com/MohammadMoshtagh/MeMir/actions/workflows/dotnet-package.yml/badge.svg?branch=main&event=push)](https://github.com/MohammadMoshtagh/MeMir/actions/workflows/dotnet-package.yml) [![codecov](https://codecov.io/gh/MohammadMoshtagh/MeMir/branch/main/graph/badge.svg?token=1LSS4ANS9C)](https://codecov.io/gh/MohammadMoshtagh/MeMir)
 
 ![Your Repository's Stats](https://github-readme-stats.vercel.app/api?username=MohammadMoshtagh&show_icons=true)
 
