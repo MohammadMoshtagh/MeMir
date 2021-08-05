@@ -25,7 +25,7 @@ jobs:
         run: dotnet build --configuration Release --no-restore
         working-directory: Search-TDD-CSharp/
       - name: Test
-        run: dotnet test
+        run: dotnet test --collect:"XPlat Code Coverage"
         working-directory: Search-TDD-CSharp/
       - name: Publish code coverage reports to codecove.io
         uses: codecov/codecov-action@v1
