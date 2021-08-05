@@ -42,7 +42,7 @@ namespace SearchTest
             expectedData.Add(MakeData(GetStem("man"), fileNames[1]));
             expectedData.Add(MakeData(GetStem("sag"), fileNames[1]));
             expectedData.Add(MakeData(GetStem("mikham"), fileNames[1]));
-            expectedData.Add(MakeData(GetStem("khojshgel"), fileNames[1]));
+            expectedData.Add(MakeData(GetStem("khoshgel"), fileNames[1]));
             expectedData.Add(MakeData(GetStem("mikham"), fileNames[1]));
             expectedData.Add(MakeData(GetStem("mio"), fileNames[1]));
             //file 4
