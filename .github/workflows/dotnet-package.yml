@@ -8,17 +8,22 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dotnet-version: ['3.0', '3.1.x', '5.0.x' ]
+        dotnet-version: ['5.0.x']
 
     steps:
       - uses: actions/checkout@v2
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v1.8.1
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v1.7.2
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
       - name: Install dependencies
         run: dotnet restore
+        working-directory: Search-TDD-CSharp/
       - name: Build
         run: dotnet build --configuration Release --no-restore
+        working-directory: Search-TDD-CSharp/
       - name: Test
-        run: dotnet test --no-restore --verbosity normal
+        run: dotnet test
+        working-directory: Search-TDD-CSharp/
