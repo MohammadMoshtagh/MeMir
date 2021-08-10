@@ -1,35 +1,41 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Search.Models;
 
 namespace Search.DatabaseAndStoring
 {
     public class Database : IDatabase
     {
-        private readonly HashSet<Data> _datas = new HashSet<Data>();
+        private readonly DatabaseContext _databaseContext;
 
-        public void AddData(Data data)
+        public Database(DatabaseContext databaseContext)
         {
-            _datas.Add(data);
+            _databaseContext = databaseContext;
+        }
+        
+        public void AddModelData(DataEntity data)
+        {
+            Console.WriteLine(data.Word + " " + data.FileName);
+            _databaseContext.Add(data);
+            _databaseContext.SaveChanges();
         }
 
         public Data GetData(string word)
         {
-            foreach (var data in _datas.Where(data => data.Word == word))
+            var fileNames = new HashSet<string>();
+            var query = _databaseContext.DataEntities;
+            foreach (var dataEntity in query)
             {
-                return data;
+                if (word == dataEntity.Word) fileNames.Add(dataEntity.FileName);
             }
 
-            return Data.GetNullData();
+            return new Data(word, fileNames);
         }
 
-        public HashSet<Data> GetAllData()
+        public bool DoesContainsWord(string word)
         {
-            return _datas;
-        }
-
-        public bool ContainsWord(string word)
-        {
-            return GetData(word).FilesWithWordInThem.Count != 0;
+            return GetData(word).HasFilesWithWordInThem();
         }
     }
 }

@@ -1,10 +1,14 @@
 ﻿using static SearchTest.TestEssentials;
 using System.Collections.Generic;
+using Iveonik.Stemmers;
 using NSubstitute;
 using Search.DatabaseAndStoring;
-using Search.Dependencies;
+
 using Search.Index;
 using Search.IO;
+using Search.IO.FolderIO;
+using Search.Models;
+using Search.Word;
 using Xunit;
 
 namespace SearchTest
@@ -12,70 +16,41 @@ namespace SearchTest
     [Collection("Test Collection 1")]
     public class IndexerTest
     {
-        private readonly IIndexer _indexer = new Indexer();
-        private readonly IReader _reader = Substitute.For<IReader>();
-        private readonly string _ls = TestEssentials.Ls;
+        private readonly string _lineSeparator = TestEssentials.LineSeparator;
+        private IIndexer _indexer;
 
-        public IndexerTest()
+        [Fact]
+        public void Indexer_ShouldNotCallDatabase_WhenFolderIsEmpty()
         {
-            Manager.Reset();
+            var wordProcessor = Substitute.For<IWordProcessor>();
+            var folderReader = Substitute.For<IFolderReader>();
+            folderReader.Read("Abbas").Returns(new Dictionary<string, string>() {});
+            var database = Substitute.For<IDatabase>();
+            _indexer = new Indexer(folderReader, wordProcessor, database);
+            _indexer.Index("Abbas");
+            database.DidNotReceive().AddModelData(Arg.Any<DataEntity>());
         }
 
         [Fact]
-        public void Should_Index_Correctly_WhenReading_Folder()
+        public void Indexer_ShouldCallDatabase_WhenFolderIsNotEmpty()
         {
-            MockingFolderReader();
-            var expectedData = new HashSet<Data>();
-            var fileNames = new []
-            {
-                new HashSet<string>() {"1"},
-                new HashSet<string>() {"3"},
-                new HashSet<string>() {"4"}
-            };
-            //file 1
-            expectedData.Add(MakeData(GetStem("hello"), fileNames[0]));
-            expectedData.Add(MakeData(GetStem("dear"), fileNames[0]));
-            expectedData.Add(MakeData(GetStem("i"), fileNames[0]));
-            expectedData.Add(MakeData(GetStem("am"), fileNames[0]));
-            expectedData.Add(MakeData(GetStem("mohammad"), fileNames[0]));
-            //file 3
-            expectedData.Add(MakeData(GetStem("man"), fileNames[1]));
-            expectedData.Add(MakeData(GetStem("sag"), fileNames[1]));
-            expectedData.Add(MakeData(GetStem("mikham"), fileNames[1]));
-            expectedData.Add(MakeData(GetStem("khoshgel"), fileNames[1]));
-            expectedData.Add(MakeData(GetStem("mikham"), fileNames[1]));
-            expectedData.Add(MakeData(GetStem("mio"), fileNames[1]));
-            //file 4
-            expectedData.Add(MakeData(GetStem("mir"), fileNames[2]));
-            expectedData.Add(MakeData(GetStem("rafte"), fileNames[2]));
-            expectedData.Add(MakeData(GetStem("dubai"), fileNames[2]));
-            expectedData.Add(MakeData(GetStem("vase"), fileNames[2]));
-            expectedData.Add(MakeData(GetStem("nakhle"), fileNames[2]));
-            expectedData.Add(MakeData(GetStem("talaii"), fileNames[2]));
-
-            _indexer.Index("TestDataBase");
-            Assert.Equal(expectedData, Manager.Database.GetAllData());
-        }
-
-        private void MockingFolderReader()
-        {
-            var folderData = new Dictionary<string, string>()
-            {
-                {
-                    "1", $"Hello Dear,{_ls}" +
-                         $"I am Mohammad.{_ls}"
-                },
-                {
-                    "3", $"man sag mikham{_ls}" +
-                         $"sag khoshgel - mikham !!! mio !!!{_ls}"
-                },
-                {
-                    "4", "Mir rafte dubai vase nakhle talaii !!"
-                }
-            };
-
-            _reader.Read("TestDataBase").Returns(folderData);
-            Manager.FolderReaderInstance = _reader;
+            var wordProcessor = Substitute.For<IWordProcessor>();
+            wordProcessor.ParseText(default).ReturnsForAnyArgs(new string[] {"ali", "rafte", "biroon"});
+            
+            var folderReader = Substitute.For<IFolderReader>();
+            folderReader.Read("mohammad").Returns(new Dictionary<string, string>() {{"mohammad", null}});
+            
+            var database = Substitute.For<IDatabase>();
+            database.DoesContainsWord(default).ReturnsForAnyArgs(false);
+            _indexer = new Indexer(folderReader, wordProcessor, database);
+            
+            _indexer.Index("mohammad");
+            
+            // check for database calls
+            database.Received(3).AddModelData(Arg.Any<DataEntity>());
+            database.Received().AddModelData(Arg.Is<DataEntity>(d => d.Word == "ali" && d.FileName == "mohammad"));
+            database.Received().AddModelData(Arg.Is<DataEntity>(d => d.Word == "rafte" && d.FileName == "mohammad"));
+            database.Received().AddModelData(Arg.Is<DataEntity>(d => d.Word == "biroon" && d.FileName == "mohammad"));
         }
     }
 }

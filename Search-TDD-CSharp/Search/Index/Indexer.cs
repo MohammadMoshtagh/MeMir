@@ -1,42 +1,62 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Search.DatabaseAndStoring;
-using Search.Dependencies;
+using Search.IO;
+using Search.IO.FolderIO;
+using Search.Models;
+using Search.Word;
 
 namespace Search.Index
 {
     public class Indexer : IIndexer
     {
+
+        private readonly IReader _folderReader;
+        private readonly IWordProcessor _wordProcessor;
+        private readonly IDatabase _database;
+
+        public Indexer(IFolderReader folderReader, IWordProcessor wordProcessor, IDatabase database)
+        {
+            _folderReader = folderReader;
+            _database = database;
+            _wordProcessor = wordProcessor;
+        }
+
         public void Index(string path)
         {
-            var contents = Manager.FolderReaderInstance.Read(path);
-            var database = Manager.Database;
+            var contents = _folderReader.Read(path);
             foreach (var (key, value) in contents)
             {
-                AddFileTextToDatabase(value, key, database);
+                AddFileTextToDatabase(value, key);
             }
         }
 
-        private void AddFileTextToDatabase(string text, string filename, IDatabase database)
+        private void AddFileTextToDatabase(string text, string filename)
         {
-            var parsedText = Manager.WordProcessorInstance.ParseText(text);
+            var parsedText = _wordProcessor.ParseText(text);
             foreach (var word in parsedText)
             {
-                if (database.ContainsWord(word)) AppendFilenameToData(word, filename, database);
-                else MakeKeyInDataBase(word, filename, database);
+                ChooseToMakeOrAppend(word, filename);
             }
         }
 
-        private void MakeKeyInDataBase(string word, string filename, IDatabase database)
+        private void ChooseToMakeOrAppend(string word, string filename)
         {
-            HashSet<string> filenames = new HashSet<string>(new[]{filename});
-            Data createdData = new Data(word, filenames);
-            database.AddData(createdData);
+            if (_database.DoesContainsWord(word)) 
+                AppendFilenameToData(word, filename);
+            else 
+                MakeKeyInDataBase(word, filename);
         }
 
-        private void AppendFilenameToData(string word, string filename, IDatabase database)
+        private void MakeKeyInDataBase(string word, string filename)
         {
-            Data alreadyCreatedData = database.GetData(word);
-            HashSet<string> filenames = alreadyCreatedData.FilesWithWordInThem;
+            var createdData = new DataEntity(word, filename);
+            _database.AddModelData(createdData);
+        }
+
+        private void AppendFilenameToData(string word, string filename)
+        {
+            var createdData = _database.GetData(word);
+            var filenames = createdData.FilesWithWordInThem;
             filenames.Add(filename);
         }
     }

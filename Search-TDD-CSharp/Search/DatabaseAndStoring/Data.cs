@@ -1,12 +1,21 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Search.DatabaseAndStoring
 {
     public class Data
     {
-        private static readonly Data NullData = new Data("", new HashSet<string>());
+        [Key]
         public string Word { get; }
+        [Required]
         public HashSet<string> FilesWithWordInThem { get; }
+
+        public Data()
+        {
+            Word = "";
+            FilesWithWordInThem = new HashSet<string>();
+        }
 
         public Data(string word, HashSet<string> filesWithWordInThem)
         {
@@ -14,9 +23,9 @@ namespace Search.DatabaseAndStoring
             FilesWithWordInThem = filesWithWordInThem;
         }
 
-        public static Data GetNullData()
+        public bool HasFilesWithWordInThem()
         {
-            return NullData;
+            return FilesWithWordInThem.Count != 0;
         }
 
         public override bool Equals(object obj)
@@ -28,13 +37,7 @@ namespace Search.DatabaseAndStoring
 
         public override int GetHashCode()
         {
-            string filenames = "";
-            foreach (var s in FilesWithWordInThem)
-            {
-                filenames += s;
-            }
-
-            return (Word + filenames).GetHashCode();
+            return Word.GetHashCode();
         }
     }
 }

@@ -2,16 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using Search.DatabaseAndStoring;
-using Search.Dependencies;
+using Search.Models;
 using Search.Tags;
 
 namespace Search.Search
 {
     public class Searcher : ISearcher
     {
+
+        private readonly ITagCreator _tagCreator;
+        private readonly IDatabase _database;
+
+        public Searcher(ITagCreator tagCreator, IDatabase database)
+        {
+            _tagCreator = tagCreator;
+            _database = database;
+        }
+
         public HashSet<string> Search(string command)
         {
-            var tags = Manager.TagCreator.CreateTags(command);
+            var tags = _tagCreator.CreateTags(command);
             var result = GetNoTagWordsData(tags);
             result.UnionWith(GetPlusTagWordsData(tags));
             result.RemoveWhere(fileName => GetMinusTagWordsData(tags).Contains(fileName));
@@ -21,17 +31,11 @@ namespace Search.Search
 
         private HashSet<string> GetNoTagWordsData(HashSet<Tag> tags)
         {
-            try
-            {
-                return tags.Where(tag => tag.Type == TagType.NoTag)
-                    .Select(tag => GetDataForWord(tag.Word).FilesWithWordInThem)
-                    .Aggregate((current, next) => current.Intersect(next).ToHashSet())
-                    .ToHashSet();
-            } 
-            catch (Exception)
-            {
-                return new HashSet<string>();
-            }
+            var allNoTagWords = tags.Where(tag => tag.Type == TagType.NoTag);
+            if (!allNoTagWords.Any()) return new HashSet<string>();
+            var allAnswers = allNoTagWords.Select(tag => GetDataForWord(tag.Word).FilesWithWordInThem);
+            return allAnswers.Aggregate((current, next) => current.Intersect(next).ToHashSet())
+                .ToHashSet();
         }
 
         private HashSet<string> GetPlusTagWordsData(HashSet<Tag> tags) 
@@ -42,9 +46,9 @@ namespace Search.Search
             => tags.Where(tag => tag.Type == TagType.Minus)
             .SelectMany(tag => GetDataForWord(tag.Word).FilesWithWordInThem).ToHashSet();
 
-        private static Data GetDataForWord(string word)
+        private Data GetDataForWord(string word)
         {
-            return Manager.Database.GetData(word);
+            return _database.GetData(word);
         }
     }
 }

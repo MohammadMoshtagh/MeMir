@@ -1,37 +1,28 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Search.Dependencies;
 
 namespace Search.Tags
 {
-    public class TagCreator
+    public class TagCreator : ITagCreator
     {
-        public HashSet<Tag> CreateTags(string command)
-        {
-            var words = Regex.Split(command, "\\s+");
-            return CreateTagsFromArray(words);
-        }
+        private const string SplitRegex = "\\s+";
+        private readonly ITagProcessor _tagProcessor;
 
-        private HashSet<Tag> CreateTagsFromArray(string[] words) 
-            => words.Select(word => new Tag(CleaningWord(word), GetTagTypeFromWord(word))).ToHashSet();
-
-        private string CleaningWord(string word)
+        public TagCreator(ITagProcessor tagProcessor)
         {
-            string result = word.ToLower();
-            if (word.StartsWith("+") || word.StartsWith("-"))
-            {
-                result = result[1..];
-            }
-            result = Manager.Stemmer.Stem(result);
-            return result;
+            _tagProcessor = tagProcessor;
         }
         
-        private TagType GetTagTypeFromWord(string word)
+        public HashSet<Tag> CreateTags(string command)
         {
-            if (word.StartsWith("+")) return TagType.Plus;
-            if (word.StartsWith("-")) return TagType.Minus; 
-            return TagType.NoTag;
+            var words = Regex.Split(command, SplitRegex);
+            return CreateTagsFromArray(words);
+        }
+        
+        private HashSet<Tag> CreateTagsFromArray(string[] words)
+        {
+            return words.Select(word => _tagProcessor.Process(word)).ToHashSet();
         }
     }
 }

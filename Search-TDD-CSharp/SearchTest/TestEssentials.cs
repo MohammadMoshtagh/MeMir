@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using Iveonik.Stemmers;
 using NSubstitute;
 using Search.DatabaseAndStoring;
-using Search.Dependencies;
+
 using Search.IO;
+using Search.Models;
 using Xunit;
 
 namespace SearchTest
@@ -11,7 +13,9 @@ namespace SearchTest
     [Collection("Test Collection 1")]
     public static class TestEssentials
     {
-        public static readonly string Ls = Environment.NewLine;
+        
+
+        public static readonly string LineSeparator = Environment.NewLine;
         
         public static Data MakeData(string word, HashSet<string> fileNames)
         {
@@ -20,9 +24,10 @@ namespace SearchTest
 
         public static string GetStem(string word)
         {
-            return Manager.Stemmer.Stem(word);
+            IStemmer stemmer = new EnglishStemmer();
+            return stemmer.Stem(word);
         }
-        
+
         public static void MockFolderReaderForDataBase(IReader reader)
         {
             reader.Read("TestDataBase").Returns(new Dictionary<string, string>()
@@ -32,12 +37,12 @@ namespace SearchTest
                 },
 
                 {
-                    "3", $"man sag mikham{Ls}" +
-                         $"sag khoshgel -  !!! mio !!!{Ls}"
+                    "3", $"man sag mikham{LineSeparator}" +
+                         $"sag khoshgel -  !!! mio !!!{LineSeparator}"
                 },
                 {
-                    "1", $"Hello Dear,{Ls}" +
-                         $"I am Mohammad.{Ls}"
+                    "1", $"Hello Dear,{LineSeparator}" +
+                         $"I am Mohammad.{LineSeparator}"
                 }
             });
         }
