@@ -25,4 +25,4 @@ jobs:
       working-directory: Search-TDD-CSharp/
     - name: Build library and generate NuGet Package
       run: dotnet pack -c Release -o artifacts -p:PackageVersion=${{ steps.version.outputs.release }}
-      working-directory: <path to classlib project>
+      working-directory: MeMir/Search-TDD-CSharp/Search
